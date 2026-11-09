@@ -7,6 +7,7 @@
   <title>IMPRESIVE — 主視覺實驗室</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23203c37'/%3E%3Cpath d='M12 12h16v16H12z' fill='none' stroke='%23b7dbc9' stroke-width='2'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="studio.css">
+  <link rel="stylesheet" href="studio-i18n.css">
 </head>
 <body id="top">
   <header class="studio-header">
@@ -15,6 +16,10 @@
       <span><strong>IMPRESIVE</strong><span class="brand-divider">/</span><span>主視覺實驗室</span></span>
     </a>
     <div class="header-actions"><span class="local-badge"><i></i>本機設計工作台</span><span id="saveStatus" class="save-status" role="status">設定會自動保留</span>
+      <div class="language-switch" role="group" aria-label="介面語言">
+        <button type="button" data-language="zh-Hant" lang="zh-Hant" aria-pressed="true">中文</button>
+        <button type="button" data-language="en" lang="en" aria-pressed="false">English</button>
+      </div>
       <details class="export-menu" id="exportMenu"><summary class="button button-dark">匯出設計 <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></summary><div class="export-options">
         <button type="button" id="downloadHtml">下載 B 版 HTML<span>含字型與圖像，可離線開啟</span></button>
         <button type="button" id="copyCss">複製 B 版 CSS 變數<span>保留目前色彩與版面參數</span></button>
@@ -55,6 +60,7 @@
   <noscript><p class="noscript">請啟用 JavaScript 以使用即時調色與比較功能。</p></noscript>
   <script src="assets.js"></script>
   <script src="hero-preview.js"></script>
+  <script src="studio-i18n.js"></script>
   <script src="studio.js"></script>
 </body>
 </html>

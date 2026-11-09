@@ -21,6 +21,30 @@
 @media(max-width:800px){.workbench{min-height:0}.controls{height:auto;position:static}}
 
 </style>
+  <style>
+.language-switch{display:flex;align-items:center;gap:2px;padding:3px;border:1px solid var(--line);border-radius:8px;background:var(--subtle);flex-shrink:0}
+.language-switch button{min-height:30px;padding:0 11px;border-radius:5px;font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap}
+.language-switch button:hover{background:#f7f9f5;color:var(--ink)}
+.language-switch button[aria-pressed=true]{background:var(--ink);color:#fff}
+html[lang=en] .preset-text{min-width:0}
+html[lang=en] .preset-title{flex-wrap:wrap;gap:4px 7px;line-height:1.4}
+html[lang=en] .preset-subtitle{line-height:1.5;overflow-wrap:break-word}
+html[lang=en] .section-title>span{flex-shrink:0}
+html[lang=en] .preview-toolbar,html[lang=en] .reference-bar{flex-wrap:wrap}
+html[lang=en] .controls-footer button{flex-shrink:0}
+html[lang=en] .export-options button{line-height:1.6}
+@media(max-width:1250px){.header-actions{gap:12px}.local-badge{display:none}}
+@media(max-width:800px){.header-actions{gap:10px}.language-switch button{min-height:26px;padding:0 8px;font-size:10px}}
+@media(max-width:480px){
+  .studio-header{gap:8px;padding-inline:12px}.studio-brand{gap:7px}.studio-brand>span>span:last-child{font-size:10px}.studio-mark{width:27px;height:27px}
+  .header-actions{gap:7px}.language-switch{padding:2px;border-radius:6px}.language-switch button{padding:0 7px;font-size:9px;min-height:27px}.button-dark{padding-inline:9px;font-size:9px;gap:3px}
+  html[lang=en] .preset{align-items:flex-start}
+  html[lang=en] .color-control>label{line-height:1.5;min-height:15px}
+  html[lang=en] .controls-footer{align-items:flex-start}
+  html[lang=en] .controls-footer p{max-width:23ch}
+}
+
+</style>
 </head>
 <body id="top">
   <header class="studio-header">
@@ -29,6 +53,10 @@
       <span><strong>IMPRESIVE</strong><span class="brand-divider">/</span><span>主視覺實驗室</span></span>
     </a>
     <div class="header-actions"><span class="local-badge"><i></i>本機設計工作台</span><span id="saveStatus" class="save-status" role="status">設定會自動保留</span>
+      <div class="language-switch" role="group" aria-label="介面語言">
+        <button type="button" data-language="zh-Hant" lang="zh-Hant" aria-pressed="true">中文</button>
+        <button type="button" data-language="en" lang="en" aria-pressed="false">English</button>
+      </div>
       <details class="export-menu" id="exportMenu"><summary class="button button-dark">匯出設計 <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></summary><div class="export-options">
         <button type="button" id="downloadHtml">下載 B 版 HTML<span>含字型與圖像，可離線開啟</span></button>
         <button type="button" id="copyCss">複製 B 版 CSS 變數<span>保留目前色彩與版面參數</span></button>
@@ -395,7 +423,233 @@ window.HERO_ASSETS = Object.freeze({"logoStatic":"data:image/svg+xml;base64,PD94
   <script>
 (function () {
   'use strict';
+
+  const STORAGE_KEY = 'impresive-hero-studio-language-261109-v1';
+  const pairs = [
+    ['IMPRESIVE 首頁主視覺比較與即時調色工具', 'Compare and customize IMPRESIVE homepage hero designs in real time.'],
+    ['IMPRESIVE — 主視覺實驗室', 'IMPRESIVE — Hero Design Lab'],
+    ['IMPRESIVE 主視覺實驗室首頁', 'IMPRESIVE Hero Design Lab home'],
+    ['主視覺實驗室', 'Hero Design Lab'],
+    ['本機設計工作台', 'Local design studio'],
+    ['設定會自動保留', 'Settings save automatically'],
+    ['匯出設計', 'Export'],
+    ['下載 B 版 HTML', 'Download B as HTML'],
+    ['含字型與圖像，可離線開啟', 'Includes fonts and images for offline use'],
+    ['複製 B 版 CSS 變數', "Copy B's CSS variables"],
+    ['保留目前色彩與版面參數', 'Keep the current colors and layout values'],
+    ['下載 A/B 設定 JSON', 'Download A/B settings JSON'],
+    ['載入設定 JSON', 'Import settings JSON'],
+    ['主視覺調整控制台', 'Hero design controls'],
+    ['從一個方向開始', 'Choose a direction'],
+    ['4 個提案', '4 presets'],
+    ['選範本，再把它調成你想要的樣子。', 'Start with a preset, then make it your own.'],
+    ['設計範本', 'Design presets'],
+    ['調整 B 版', 'Customize B'],
+    ['範本設定', 'Preset values'],
+    ['色彩調色盤', 'Color palette'],
+    ['5 色', '5 colors'],
+    ['漸層與版面', 'Gradient & layout'],
+    ['拉桿調整', 'Sliders'],
+    ['標誌動畫', 'Animate logo'],
+    ['還原此範本', 'Reset this preset'],
+    ['調整只影響比較頁，原網站維持原樣。', 'Changes apply here only. Your original site is unchanged.'],
+    ['設計預覽與比較', 'Design preview and comparison'],
+    ['即時預覽', 'Live preview'],
+    ['已自訂', 'Customized'],
+    ['預覽裝置', 'Preview device'],
+    ['桌面', 'Desktop'],
+    ['手機', 'Mobile'],
+    ['比較模式', 'Comparison mode'],
+    ['單一預覽', 'Preview'],
+    ['左右比較', 'Side by side'],
+    ['拉桿比較', 'Wipe compare'],
+    ['比較基準', 'Reference'],
+    ['A 版比較基準', 'A reference preset'],
+    ['已固定的自訂版本', 'Pinned custom version'],
+    ['將目前 B 版設為 A', 'Pin B as A'],
+    ['A 版：固定比較基準', 'A: fixed reference design'],
+    ['B 版：目前調整中的主視覺', 'B: current hero design'],
+    ['即時調整', 'Live adjustments'],
+    ['拖曳調整 A/B 比較分界', 'Adjust the A/B comparison divider'],
+    ['右側預覽會跟著設定即時更新。切換「拉桿比較」，可與 A 版直接對照。', 'The preview updates as you adjust the controls. Choose Wipe compare to compare it directly with A.'],
+    ['拖曳中線，或聚焦比較拉桿後按方向鍵。左側為 A 版，右側為目前調整的 B 版。', 'Drag the divider, or focus the comparison slider and use the arrow keys. A is on the left; your current B design is on the right.'],
+    ['左右使用相同的畫面尺寸縮放，方便比較構圖、文字層次與色彩。', 'Both versions use the same preview dimensions, making composition, hierarchy, and color easier to compare.'],
+    ['另開純預覽', 'Open clean preview'],
+    ['以更輕的背景襯托品牌藍綠，縮小內文，讓標題與網絡標誌各自有清楚的位置。', "A lighter background highlights the brand's blue and green, while smaller body text gives the headline and network mark their own space."],
+    ['請啟用 JavaScript 以使用即時調色與比較功能。', 'Enable JavaScript to use live color controls and design comparison.'],
+    ['原版重建', 'Original'],
+    ['保留原網站的視覺方向', 'Based on the original website'],
+    ['原版的比較起點', 'The original comparison baseline'],
+    ['依原站文案、配色與資產重建，方便比較。這是主視覺示意，並非原站的逐像素複製；機構標誌統一放在下方白底區。', 'Rebuilt from the original website copy, colors, and assets as a comparison baseline. This is a hero concept rather than a pixel-perfect copy; institution logos use a consistent white strip below.'],
+    ['清透藍綠', 'Blue Mist'],
+    ['更輕的底色，更清楚的層次', 'Lighter colors, clearer hierarchy'],
+    ['建議從這一版開始', 'Our recommended starting point'],
+    ['保留品牌的藍綠語彙，降低背景存在感、縮小內文。以留白和細線框景襯托原有網絡標誌，適合延續目前網站的學術形象。', 'Retains the brand blue-green palette with a quieter background and smaller body text. Generous spacing and fine outlines frame the original network mark, preserving the academic character of the website.'],
+    ['暖白編輯式', 'Warm Editorial'],
+    ['襯線字體與大面積色塊', 'Serif type and a bold color panel'],
+    ['讓文字更像一份有份量的學術刊物', 'The presence of an academic publication'],
+    ['以暖白文字區、襯線標題與獨立圖像區建立鮮明分工。這版同時探索字體與構圖；右側使用漸層終色及強調色，調色時可觀察整體平衡。', 'A warm white text area, a serif headline, and a separate image panel create a clear editorial structure. This direction explores both typography and composition. The right panel uses the gradient end and accent colors, so adjust them together for balance.'],
+    ['深海藍', 'Deep Navy'],
+    ['高對比標題與聚焦的品牌圖像', 'High contrast and a focused logo'],
+    ['另一種更有張力的首頁表情', 'A more striking homepage direction'],
+    ['以深藍底和淺青色建立明確對比，讓標題從背景中浮現。正式標誌維持原色並置於白底；若偏好較沉穩的研究平台形象，可以從這版調整。', 'A deep navy background and pale cyan emphasis give the headline stronger contrast. The official logo retains its original colors on white. Start here for a more composed research platform identity.'],
+    ['背景起色', 'Background start'],
+    ['漸層終色', 'Gradient end'],
+    ['強調／按鈕', 'Accent / button'],
+    ['主標題', 'Heading'],
+    ['說明文字', 'Body text'],
+    ['背景色濃度', 'Background intensity'],
+    ['漸層角度', 'Gradient angle'],
+    ['標題字級', 'Heading size'],
+    ['標誌大小', 'Logo size'],
+    ['上下留白', 'Vertical spacing'],
+    ['背景點紋', 'Dot texture'],
+    ['版型設定不完整', 'The layout settings are incomplete'],
+    ['色碼需使用 #RRGGBB 格式', 'Colors must use the #RRGGBB format'],
+    ['拉桿數值超出範圍', 'A slider value is out of range'],
+    ['無法辨識設計設定', 'The design settings are not recognized'],
+    ['目前僅保留在此分頁', 'Settings kept in this tab only'],
+    ['已自動儲存於本機', 'Saved locally'],
+    ['請匯出設定以保留調整', 'Export settings to keep your changes'],
+    ['文字對比：背景端點檢查通過', 'Text contrast: endpoint check passed'],
+    ['文字對比偏低，建議調整色彩', 'Low text contrast: adjust the colors'],
+    ['估算文字與漸層端點的對比；未涵蓋所有漸層中間色、點紋、按鈕和右側圖像區。內文建議至少 4.5:1，大標題至少 3:1。', 'Estimates text contrast against gradient endpoints only. It does not cover every intermediate color, texture, button, or right-side image panel. Aim for at least 4.5:1 for body text and 3:1 for large headlines.'],
+    ['推薦', 'Recommended'],
+    ['・自訂', ' · Custom'],
+    ['色碼需使用 #RRGGBB 格式，已保留上一個有效顏色。', 'Use the #RRGGBB format. The last valid color has been kept.'],
+    ['已將目前 B 版固定為 A。繼續調整 B 版，就能直接比較。', 'Current B saved as A. Keep adjusting B to compare the changes.'],
+    ['已還原目前範本。', 'Current preset reset.'],
+    ['已匯出 B 版 HTML，圖像與字型皆已包含。', 'B exported as HTML with all images and fonts included.'],
+    ['瀏覽器封鎖了新分頁，請允許彈出視窗或改用下載 HTML。', 'The browser blocked the new tab. Allow pop-ups or download the HTML instead.'],
+    ['已匯出 A/B 配色與比較設定。', 'A/B color and comparison settings exported.'],
+    ['已複製此版 CSS 變數，供本比較頁的版型使用。', 'CSS variables copied for use with the layouts in this comparison tool.'],
+    ['瀏覽器限制剪貼簿，已改為下載 CSS 變數檔。', 'Clipboard access is unavailable. The CSS variables were downloaded instead.'],
+    ['設定檔過大', 'The settings file is too large'],
+    ['不支援此設定版本', 'This settings version is not supported'],
+    ['已載入 A/B 設定。', 'A/B settings loaded.'],
+    ['此瀏覽器暫時無法自動保留設定，可使用「匯出設計」下載設定。', 'Automatic saving is unavailable in this browser. Use Export to download your settings.'],
+    ['介面語言', 'Interface language'],
+    ['內文', 'Body'],
+    ['主標', 'Heading'],
+    ['強調', 'Accent'],
+    ['左側 A 版', 'A on the left'],
+    ['，右側 B 版', ', B on the right'],
+    ['無法載入設定：', 'Could not load settings: '],
+    ['。請使用本工具匯出的 JSON。', '. Use a JSON file exported by this tool.'],
+    ['調色盤', ' color picker'],
+    ['十六進位色碼', ' hex color']
+  ];
+
+  const toEnglish = new Map(pairs);
+  const toChinese = new Map(pairs.map(([chinese, english]) => [english, chinese]));
+  // Earlier English source variants remain recognized during an in-place refresh.
+  toChinese.set('Preset settings', '範本設定');
+  toChinese.set('Pinned custom design', '已固定的自訂版本');
+  toChinese.set('The preview updates as you adjust the settings. Choose Wipe compare to compare it directly with A.', '右側預覽會跟著設定即時更新。切換「拉桿比較」，可與 A 版直接對照。');
+  const colorLabels = [
+    ['背景起色', 'Background start'], ['漸層終色', 'Gradient end'],
+    ['強調／按鈕', 'Accent / button'], ['主標題', 'Heading'], ['說明文字', 'Body text']
+  ];
+  colorLabels.forEach(([chinese, english]) => {
+    [[chinese + '調色盤', english + ' color picker'], [chinese + '十六進位色碼', english + ' hex color']].forEach(([source, target]) => {
+      toEnglish.set(source, target);
+      toChinese.set(target, source);
+    });
+  });
+
+  let language = 'zh-Hant';
+  try {
+    if (localStorage.getItem(STORAGE_KEY) === 'en') language = 'en';
+  } catch (error) {
+    // Language switching remains available when browser storage is disabled.
+  }
+
+  const textSources = new WeakMap();
+  const attributeSources = new WeakMap();
+  const excluded = 'script,style,iframe,svg,textarea,code,pre,[data-language]';
+
+  function t(text) {
+    const value = String(text);
+    const chinese = toChinese.get(value) || value;
+    return language === 'en' ? (toEnglish.get(chinese) || value) : chinese;
+  }
+
+  function translateWithWhitespace(value) {
+    const core = value.trim();
+    if (!core) return value;
+    const leading = value.slice(0, value.indexOf(core));
+    const trailing = value.slice(value.indexOf(core) + core.length);
+    return leading + t(core) + trailing;
+  }
+
+  function applyText(node) {
+    const prior = textSources.get(node);
+    const source = prior && node.nodeValue === prior.output ? prior.source : node.nodeValue;
+    const output = translateWithWhitespace(source);
+    if (node.nodeValue !== output) node.nodeValue = output;
+    textSources.set(node, { source, output });
+  }
+
+  function applyAttributes(element) {
+    let records = attributeSources.get(element);
+    if (!records) { records = new Map(); attributeSources.set(element, records); }
+    ['aria-label', 'title', 'aria-valuetext'].forEach((attribute) => {
+      const current = element.getAttribute(attribute);
+      if (current === null) return;
+      const prior = records.get(attribute);
+      const source = prior && current === prior.output ? prior.source : current;
+      const output = translateWithWhitespace(source);
+      if (current !== output) element.setAttribute(attribute, output);
+      records.set(attribute, { source, output });
+    });
+  }
+
+  function apply() {
+    document.documentElement.lang = language;
+    document.title = t('IMPRESIVE — 主視覺實驗室');
+    const description = document.querySelector('meta[name="description"]');
+    if (description) description.content = t('IMPRESIVE 首頁主視覺比較與即時調色工具');
+    if (!document.body) return;
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        return node.parentElement && !node.parentElement.closest(excluded) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      }
+    });
+    let node;
+    while ((node = walker.nextNode())) applyText(node);
+    document.querySelectorAll('[aria-label],[title],[aria-valuetext]').forEach((element) => {
+      if (!element.closest('script,style,svg,[data-language]')) applyAttributes(element);
+    });
+    document.querySelectorAll('[data-language]').forEach((button) => {
+      button.setAttribute('aria-pressed', String(button.dataset.language === language));
+    });
+    const group = document.querySelector('.language-switch');
+    if (group) group.setAttribute('aria-label', t('介面語言'));
+  }
+
+  function setLanguage(next) {
+    if (next !== 'zh-Hant' && next !== 'en') return;
+    if (next === language) { apply(); return; }
+    language = next;
+    try { localStorage.setItem(STORAGE_KEY, language); } catch (error) { /* Keep the choice in this tab. */ }
+    document.dispatchEvent(new CustomEvent('studio:languagechange', { detail: { language } }));
+  }
+
+  document.addEventListener('click', (event) => {
+    const button = event.target instanceof Element ? event.target.closest('button[data-language]') : null;
+    if (button) setLanguage(button.dataset.language);
+  });
+
+  window.StudioI18n = Object.freeze({ t, apply, setLanguage, get language() { return language; } });
+})();
+
+</script>
+  <script>
+(function () {
+  'use strict';
   const $ = (selector) => document.querySelector(selector);
+  const t = (text) => window.StudioI18n ? window.StudioI18n.t(text) : text;
+  const localize = () => { if (window.StudioI18n) window.StudioI18n.apply(); };
   const STORAGE_KEY = 'impresive-hero-studio-261109-v1';
   const PRESETS = {
     original: { name: '原版重建', subtitle: '保留原網站的視覺方向', noteTitle: '原版的比較起點', note: '依原站文案、配色與資產重建，方便比較。這是主視覺示意，並非原站的逐像素複製；機構標誌統一放在下方白底區。', config: { layout: 'original', bgStart: '#d3e4f6', bgEnd: '#d6eadf', accent: '#0058ad', ink: '#0b2545', muted: '#2f4559', angle: 115, strength: 100, titleSize: 62, logoSize: 318, spacing: 70, pattern: 0, animate: false } },
@@ -418,14 +672,14 @@ window.HERO_ASSETS = Object.freeze({"logoStatic":"data:image/svg+xml;base64,PD94
   let previewUrl;
 
   function sanitizeConfig(input) {
-    if (!input || typeof input !== 'object' || !Object.hasOwn(PRESETS,input.layout)) throw new Error('版型設定不完整');
+    if (!input || typeof input !== 'object' || !Object.hasOwn(PRESETS,input.layout)) throw new Error(t('版型設定不完整'));
     const safe = clone(PRESETS[input.layout].config);
     COLORS.forEach(([key]) => {
-      if (!/^#[0-9a-f]{6}$/i.test(String(input[key]))) throw new Error('色碼需使用 #RRGGBB 格式');
+      if (!/^#[0-9a-f]{6}$/i.test(String(input[key]))) throw new Error(t('色碼需使用 #RRGGBB 格式'));
       safe[key] = input[key].toLowerCase();
     });
     RANGES.forEach(([key, , min, max]) => {
-      if (typeof input[key] !== 'number' || !Number.isFinite(input[key]) || input[key] < min || input[key] > max) throw new Error('拉桿數值超出範圍');
+      if (typeof input[key] !== 'number' || !Number.isFinite(input[key]) || input[key] < min || input[key] > max) throw new Error(t('拉桿數值超出範圍'));
       safe[key] = input[key];
     });
     safe.animate = input.animate === true;
@@ -433,7 +687,7 @@ window.HERO_ASSETS = Object.freeze({"logoStatic":"data:image/svg+xml;base64,PD94
   }
 
   function sanitizeState(input) {
-    if (!input || typeof input !== 'object' || !Object.hasOwn(PRESETS,input.preset)) throw new Error('無法辨識設計設定');
+    if (!input || typeof input !== 'object' || !Object.hasOwn(PRESETS,input.preset)) throw new Error(t('無法辨識設計設定'));
     return { preset: input.preset, a: sanitizeConfig(input.a), b: sanitizeConfig(input.b),
       reference: ['original','refined','editorial','navy','snapshot'].includes(input.reference) ? input.reference : 'snapshot',
       mode: ['single','side','wipe'].includes(input.mode) ? input.mode : 'single',
@@ -444,18 +698,18 @@ window.HERO_ASSETS = Object.freeze({"logoStatic":"data:image/svg+xml;base64,PD94
     if (saved) state = sanitizeState(JSON.parse(saved));
   } catch (error) {
     storageAvailable = false;
-    $('#saveStatus').textContent = '目前僅保留在此分頁';
+    $('#saveStatus').textContent = t('目前僅保留在此分頁');
   }
 
   function persist() {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); storageAvailable = true; $('#saveStatus').textContent = '已自動儲存於本機'; }
-      catch (error) { storageAvailable = false; $('#saveStatus').textContent = '請匯出設定以保留調整'; }
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); storageAvailable = true; $('#saveStatus').textContent = t('已自動儲存於本機'); }
+      catch (error) { storageAvailable = false; $('#saveStatus').textContent = t('請匯出設定以保留調整'); }
     }, 240);
   }
   function notify(message) {
-    clearTimeout(toastTimer); $('#toast').textContent = message; $('#toast').hidden = false;
+    clearTimeout(toastTimer); $('#toast').textContent = t(message); $('#toast').hidden = false;
     toastTimer = setTimeout(() => { $('#toast').hidden = true; }, 4200);
   }
   function rgb(hex) { return [1,3,5].map((index) => parseInt(hex.slice(index,index+2),16)); }
@@ -484,20 +738,21 @@ window.HERO_ASSETS = Object.freeze({"logoStatic":"data:image/svg+xml;base64,PD94
     const pass = body>=4.5 && title>=3 && emphasis>=3;
     const status=$('#contrastStatus');status.classList.toggle('warning',!pass);
     status.replaceChildren();
-    const strong=document.createElement('strong');strong.textContent=pass?'文字對比：背景端點檢查通過':'文字對比偏低，建議調整色彩';
-    const detail=document.createElement('span');detail.textContent=`內文 ${body.toFixed(1)}:1 · 主標 ${title.toFixed(1)}:1 · 強調 ${emphasis.toFixed(1)}:1`;
+    const strong=document.createElement('strong');strong.textContent=t(pass?'文字對比：背景端點檢查通過':'文字對比偏低，建議調整色彩');
+    const detail=document.createElement('span');detail.textContent=`${t('內文')} ${body.toFixed(1)}:1 · ${t('主標')} ${title.toFixed(1)}:1 · ${t('強調')} ${emphasis.toFixed(1)}:1`;
     status.append(strong,detail);
-    status.title='估算文字與漸層端點的對比；未涵蓋所有漸層中間色、點紋、按鈕和右側圖像區。內文建議至少 4.5:1，大標題至少 3:1。';
+    status.title=t('估算文字與漸層端點的對比；未涵蓋所有漸層中間色、點紋、按鈕和右側圖像區。內文建議至少 4.5:1，大標題至少 3:1。');
   }
   function isCustom() { return JSON.stringify(state.b)!==JSON.stringify(PRESETS[state.preset].config); }
   function updateLabels() {
     const preset=PRESETS[state.preset],custom=isCustom();
-    $('#currentName').textContent=preset.name;$('#versionName').textContent=preset.name+(custom?'・自訂':'');
-    $('#modifiedDot').hidden=!custom;$('#customBadge').textContent=custom?'已自訂':'範本設定';
-    $('#referenceName').textContent=state.reference==='snapshot'?'已固定的自訂版本':PRESETS[state.reference].name;
-    $('#directionTitle').textContent=preset.noteTitle;$('#directionDescription').textContent=preset.note;
+    $('#currentName').textContent=t(preset.name);$('#versionName').textContent=t(preset.name)+(custom?t('・自訂'):'');
+    $('#modifiedDot').hidden=!custom;$('#customBadge').textContent=t(custom?'已自訂':'範本設定');
+    $('#referenceName').textContent=t(state.reference==='snapshot'?'已固定的自訂版本':PRESETS[state.reference].name);
+    $('#directionTitle').textContent=t(preset.noteTitle);$('#directionDescription').textContent=t(preset.note);
     document.querySelectorAll('.preset').forEach((button)=>button.setAttribute('aria-pressed',String(button.dataset.preset===state.preset)));
     assessContrast();
+    localize();
   }
 
   Object.entries(PRESETS).forEach(([id,preset])=>{
@@ -555,7 +810,7 @@ window.HERO_ASSETS = Object.freeze({"logoStatic":"data:image/svg+xml;base64,PD94
   $('#frameB').addEventListener('load',()=>{ $('#frameB').contentWindow.postMessage({type:'impresive:settings',styles:variables(state.b)},'*'); });
   function updateWipe() {
     $('#stage').style.setProperty('--split',state.split+'%');$('#wipeControl').style.setProperty('--split',state.split+'%');
-    $('#wipeRange').setAttribute('aria-valuetext',`左側 A 版 ${state.split}%，右側 B 版 ${100-state.split}%`);
+    $('#wipeRange').setAttribute('aria-valuetext',window.StudioI18n?.language==='en' ? `A on the left ${state.split}%, B on the right ${100-state.split}%` : `左側 A 版 ${state.split}%，右側 B 版 ${100-state.split}%`);
   }
   $('#wipeRange').addEventListener('input',()=>{state.split=Number($('#wipeRange').value);updateWipe();persist();});
   function scaleFrames() {
@@ -572,8 +827,9 @@ window.HERO_ASSETS = Object.freeze({"logoStatic":"data:image/svg+xml;base64,PD94
     $('#wipeControl').hidden=state.mode!=='wipe';
     document.querySelectorAll('[data-mode]').forEach((button)=>{if(button.tagName==='BUTTON')button.setAttribute('aria-pressed',String(button.dataset.mode===state.mode));});
     document.querySelectorAll('[data-device]').forEach((button)=>{if(button.tagName==='BUTTON')button.setAttribute('aria-pressed',String(button.dataset.device===state.device));});
-    $('#previewHint').textContent=state.mode==='wipe'?'拖曳中線，或聚焦比較拉桿後按方向鍵。左側為 A 版，右側為目前調整的 B 版。':state.mode==='side'?'左右使用相同的畫面尺寸縮放，方便比較構圖、文字層次與色彩。':'右側預覽會跟著設定即時更新。切換「拉桿比較」，可與 A 版直接對照。';
+    $('#previewHint').textContent=t(state.mode==='wipe'?'拖曳中線，或聚焦比較拉桿後按方向鍵。左側為 A 版，右側為目前調整的 B 版。':state.mode==='side'?'左右使用相同的畫面尺寸縮放，方便比較構圖、文字層次與色彩。':'右側預覽會跟著設定即時更新。切換「拉桿比較」，可與 A 版直接對照。');
     requestAnimationFrame(scaleFrames);
+    localize();
   }
   document.querySelectorAll('button[data-mode]').forEach((button)=>button.addEventListener('click',()=>{state.mode=button.dataset.mode;syncView();persist();}));
   document.querySelectorAll('button[data-device]').forEach((button)=>button.addEventListener('click',()=>{state.device=button.dataset.device;syncView();persist();}));
@@ -607,17 +863,21 @@ window.HERO_ASSETS = Object.freeze({"logoStatic":"data:image/svg+xml;base64,PD94
   $('#importJson').addEventListener('click',()=>{$('#importFile').click();$('#exportMenu').open=false;});
   $('#importFile').addEventListener('change',async(event)=>{
     const file=event.target.files[0];if(!file)return;
-    try{if(file.size>65536)throw new Error('設定檔過大');const imported=JSON.parse(await file.text());if(imported.version!==1)throw new Error('不支援此設定版本');state=sanitizeState(imported);syncInputs();renderA();renderB();syncView();updateLabels();persist();notify('已載入 A/B 設定。');}
-    catch(error){notify('無法載入設定：'+error.message+'。請使用本工具匯出的 JSON。');}finally{event.target.value='';}
+    try{if(file.size>65536)throw new Error(t('設定檔過大'));const imported=JSON.parse(await file.text());if(imported.version!==1)throw new Error(t('不支援此設定版本'));state=sanitizeState(imported);syncInputs();renderA();renderB();syncView();updateLabels();persist();notify('已載入 A/B 設定。');}
+    catch(error){notify(t('無法載入設定：')+error.message+t('。請使用本工具匯出的 JSON。'));}finally{event.target.value='';}
   });
   document.addEventListener('click',(event)=>{if(!$('#exportMenu').contains(event.target))$('#exportMenu').open=false;});
   document.addEventListener('keydown',(event)=>{if(event.key==='Escape')$('#exportMenu').open=false;});
   new ResizeObserver(()=>requestAnimationFrame(scaleFrames)).observe($('#canvasArea'));
   window.addEventListener('pagehide',()=>{if(previewUrl)URL.revokeObjectURL(previewUrl);});
+  document.addEventListener('studio:languagechange',()=>{
+    updateLabels();updateWipe();syncView();
+  });
   const fontStyle=document.createElement('style');
   fontStyle.textContent='@font-face{font-family:StudioInter;src:url("'+window.HERO_ASSETS.font+'");font-weight:100 900;font-display:swap}';
   document.head.append(fontStyle);
   syncInputs();renderA();renderB();syncView();updateLabels();
+  localize();
   if(!storageAvailable)notify('此瀏覽器暫時無法自動保留設定，可使用「匯出設計」下載設定。');
 })();
 

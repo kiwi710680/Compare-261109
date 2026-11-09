@@ -23,3 +23,12 @@
 - Original-site navigation was not clicked during the output-folder-only HTTP preview; those links target the separate original site when opened from the delivered local file.
 - JSON import and clipboard fallback were inspected in code; interactive import was not separately exercised.
 - No raw data, research outputs, data rows, packages, Git commits, or original website files were changed.
+
+## Same-page language switching
+- Updated `index.html` with adjacent Chinese and English buttons; added `studio-i18n.js` and `studio-i18n.css`.
+- Updated derived labels/errors/status messages in `studio.js` to follow the selected language. No change to preset values, existing settings storage key, or JSON schema.
+- Updated `build-standalone.cjs` to include localization assets and rebuilt `IMPRESIVE-Hero-Lab.html`. Existing separate English artifacts are retained.
+- `node --check studio.js`, `node --check studio-i18n.js`, and `node build-standalone.cjs` passed.
+- Browser validation on loopback `index.html`: Chinese -> English -> Chinese retained the exact A/B iframe srcdoc attributes, accent #3C6F47, heading 76px, pinned A, wipe mode, desktop device, and 99% divider. These are test settings, not research results.
+- English visible text contained no untranslated Chinese after excluding the permanent Chinese language button. Chinese color label correctly restored to 主標題 after switching back.
+- Reload retained English preference and all inspected design values. Browser error/warning log was empty. Test values are restored to the settings observed before testing.

@@ -1,0 +1,14 @@
+/* Allow longer English labels to wrap without changing the original interface. */
+.preset-text{min-width:0}
+.preset-title{flex-wrap:wrap;gap:4px 7px;line-height:1.4}
+.preset-subtitle{line-height:1.5;overflow-wrap:break-word}
+.section-title>span{flex-shrink:0}
+.preview-toolbar,.reference-bar{flex-wrap:wrap}
+.controls-footer button{flex-shrink:0}
+.export-options button{line-height:1.6}
+@media(max-width:480px){
+  .preset{align-items:flex-start}
+  .color-control>label{line-height:1.5;min-height:15px}
+  .controls-footer{align-items:flex-start}
+  .controls-footer p{max-width:23ch}
+}

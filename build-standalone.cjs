@@ -5,9 +5,11 @@ const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const root = __dirname;
 let html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-const css = fs.readFileSync(path.join(root, 'studio.css'), 'utf8');
-html = html.replace('<link rel="stylesheet" href="studio.css">', '<style>\n' + css + '\n</style>');
-for (const file of ['assets.js', 'hero-preview.js', 'studio.js']) {
+for (const file of ['studio.css', 'studio-i18n.css']) {
+  const css = fs.readFileSync(path.join(root, file), 'utf8');
+  html = html.replace('<link rel="stylesheet" href="' + file + '">', '<style>\n' + css + '\n</style>');
+}
+for (const file of ['assets.js', 'hero-preview.js', 'studio-i18n.js', 'studio.js']) {
   const script = fs.readFileSync(path.join(root, file), 'utf8');
   new vm.Script(script, { filename: file });
   html = html.replace('<script src="' + file + '"></script>', '<script>\n' + script.replace(/<\/script/gi, '<\\/script') + '\n</script>');

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Compare and customize IMPRESIVE homepage hero designs in real time.">
+  <title>IMPRESIVE — Hero Design Lab</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23203c37'/%3E%3Cpath d='M12 12h16v16H12z' fill='none' stroke='%23b7dbc9' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="studio.css">
+  <link rel="stylesheet" href="studio-en.css">
+</head>
+<body id="top">
+  <header class="studio-header">
+    <a class="studio-brand" href="#top" aria-label="IMPRESIVE Hero Design Lab home">
+      <svg class="studio-mark" viewBox="0 0 36 36" aria-hidden="true"><rect width="36" height="36" rx="10" fill="currentColor"/><path d="M10 12h11v14H10zM16 8h10v14H16z" fill="none" stroke="#c4e0ce" stroke-width="1.5"/></svg>
+      <span><strong>IMPRESIVE</strong><span class="brand-divider">/</span><span>Hero Design Lab</span></span>
+    </a>
+    <div class="header-actions"><span class="local-badge"><i></i>Local design studio</span><span id="saveStatus" class="save-status" role="status">Settings save automatically</span>
+      <details class="export-menu" id="exportMenu"><summary class="button button-dark">Export <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m6 8 4 4 4-4"/></svg></summary><div class="export-options">
+        <button type="button" id="downloadHtml">Download B as HTML<span>Includes fonts and images for offline use</span></button>
+        <button type="button" id="copyCss">Copy B's CSS variables<span>Keep the current colors and layout values</span></button>
+        <button type="button" id="downloadJson">Download A/B settings JSON</button>
+        <button type="button" id="importJson">Import settings JSON</button>
+      </div></details>
+    </div>
+  </header>
+  <main class="workbench">
+    <aside class="controls" aria-label="Hero design controls">
+      <section class="preset-section">
+        <div class="section-title"><h1>Choose a direction</h1><span>4 presets</span></div>
+        <p class="section-description">Start with a preset, then make it your own.</p>
+        <div id="presetList" class="preset-list" aria-label="Design presets"></div>
+      </section>
+      <div class="custom-title"><h2>Customize B</h2><span id="customBadge">Preset settings</span></div>
+      <details class="control-section" open><summary>Color palette<span>5 colors</span></summary><div id="colorControls" class="color-controls"></div></details>
+      <details class="control-section" open><summary>Gradient &amp; layout<span>Sliders</span></summary><div id="rangeControls" class="range-controls"></div></details>
+      <div class="switch-row"><label for="animateLogo">Animate logo</label><input id="animateLogo" type="checkbox" role="switch"><span class="switch-visual" aria-hidden="true"></span></div>
+      <div id="contrastStatus" class="contrast-status" role="status"></div>
+      <div class="controls-footer"><button id="resetPreset" type="button" class="button button-outline">Reset this preset</button><p>Changes apply here only. Your original site is unchanged.</p></div>
+    </aside>
+    <section class="preview-workspace" aria-label="Design preview and comparison">
+      <div class="preview-heading"><div><div class="preview-label">Live preview <span id="modifiedDot" hidden>Customized</span></div><h2 id="currentName">Blue Mist</h2></div><div class="device-toggle" role="group" aria-label="Preview device"><button type="button" data-device="desktop" aria-pressed="true"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3" width="16" height="11" rx="1.5"/><path d="M7 18h6M10 14v4"/></svg>Desktop</button><button type="button" data-device="mobile" aria-pressed="false"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="5" y="1.5" width="10" height="17" rx="2"/><path d="M9 15.5h2"/></svg>Mobile</button></div></div>
+      <div class="preview-toolbar"><div class="view-toggle" role="group" aria-label="Comparison mode"><button type="button" data-mode="single" aria-pressed="true">Preview</button><button type="button" data-mode="side" aria-pressed="false">Side by side</button><button type="button" data-mode="wipe" aria-pressed="false">Wipe compare</button></div><span id="canvasSize">1440 × 900</span></div>
+      <div class="reference-bar"><label for="referencePreset"><strong>A</strong> Reference</label><select id="referencePreset" aria-label="A reference preset"><option value="original">Original</option><option value="refined">Blue Mist</option><option value="editorial">Warm Editorial</option><option value="navy">Deep Navy</option><option value="snapshot" hidden>Pinned custom version</option></select><button type="button" id="pinReference">Pin B as A <span aria-hidden="true">↗</span></button></div>
+      <div class="canvas-area" id="canvasArea"><div id="stage" class="stage" data-mode="single" data-device="desktop">
+        <div class="preview-pane pane-a"><div class="pane-caption"><span class="version-label">A</span><strong id="referenceName">Original</strong><span>Reference</span></div><div class="frame-shell" id="shellA"><iframe id="frameA" title="A: fixed reference design" sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"></iframe></div></div>
+        <div class="preview-pane pane-b"><div class="pane-caption"><span class="version-label">B</span><strong id="versionName">Blue Mist</strong><span>Live adjustments</span></div><div class="frame-shell" id="shellB"><iframe id="frameB" title="B: current hero design" sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"></iframe></div></div>
+        <div class="wipe-control" id="wipeControl" hidden><div class="wipe-line"><span><svg viewBox="0 0 32 20" aria-hidden="true"><path d="m10 5-5 5 5 5m12-10 5 5-5 5M16 3v14"/></svg></span></div><input type="range" min="0" max="100" value="50" id="wipeRange" aria-label="Adjust the A/B comparison divider" aria-valuetext="A on the left 50%, B on the right 50%"></div>
+      </div></div>
+      <div class="preview-footnote"><p id="previewHint">The preview updates as you adjust the settings. Choose Wipe compare to compare it directly with A.</p><button type="button" id="openPreview">Open clean preview <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M11 3h6v6M17 3l-9 9M8 4H3v13h13v-5"/></svg></button></div>
+      <div class="direction-note"><span class="note-dot"></span><div><strong id="directionTitle">Our recommended starting point</strong><p id="directionDescription">A lighter background highlights the brand's blue and green, while smaller body text gives the headline and network mark their own space.</p></div></div>
+    </section>
+  </main>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <input id="importFile" type="file" accept=".json,application/json" hidden>
+  <noscript><p class="noscript">Enable JavaScript to use live color controls and design comparison.</p></noscript>
+  <script src="assets.js"></script>
+  <script src="hero-preview.js"></script>
+  <script src="studio-en.js"></script>
+</body>
+</html>

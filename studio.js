@@ -1,6 +1,8 @@
 (function () {
   'use strict';
   const $ = (selector) => document.querySelector(selector);
+  const t = (text) => window.StudioI18n ? window.StudioI18n.t(text) : text;
+  const localize = () => { if (window.StudioI18n) window.StudioI18n.apply(); };
   const STORAGE_KEY = 'impresive-hero-studio-261109-v1';
   const PRESETS = {
     original: { name: '原版重建', subtitle: '保留原網站的視覺方向', noteTitle: '原版的比較起點', note: '依原站文案、配色與資產重建，方便比較。這是主視覺示意，並非原站的逐像素複製；機構標誌統一放在下方白底區。', config: { layout: 'original', bgStart: '#d3e4f6', bgEnd: '#d6eadf', accent: '#0058ad', ink: '#0b2545', muted: '#2f4559', angle: 115, strength: 100, titleSize: 62, logoSize: 318, spacing: 70, pattern: 0, animate: false } },
@@ -23,14 +25,14 @@
   let previewUrl;
 
   function sanitizeConfig(input) {
-    if (!input || typeof input !== 'object' || !Object.hasOwn(PRESETS,input.layout)) throw new Error('版型設定不完整');
+    if (!input || typeof input !== 'object' || !Object.hasOwn(PRESETS,input.layout)) throw new Error(t('版型設定不完整'));
     const safe = clone(PRESETS[input.layout].config);
     COLORS.forEach(([key]) => {
-      if (!/^#[0-9a-f]{6}$/i.test(String(input[key]))) throw new Error('色碼需使用 #RRGGBB 格式');
+      if (!/^#[0-9a-f]{6}$/i.test(String(input[key]))) throw new Error(t('色碼需使用 #RRGGBB 格式'));
       safe[key] = input[key].toLowerCase();
     });
     RANGES.forEach(([key, , min, max]) => {
-      if (typeof input[key] !== 'number' || !Number.isFinite(input[key]) || input[key] < min || input[key] > max) throw new Error('拉桿數值超出範圍');
+      if (typeof input[key] !== 'number' || !Number.isFinite(input[key]) || input[key] < min || input[key] > max) throw new Error(t('拉桿數值超出範圍'));
       safe[key] = input[key];
     });
     safe.animate = input.animate === true;
@@ -38,7 +40,7 @@
   }
 
   function sanitizeState(input) {
-    if (!input || typeof input !== 'object' || !Object.hasOwn(PRESETS,input.preset)) throw new Error('無法辨識設計設定');
+    if (!input || typeof input !== 'object' || !Object.hasOwn(PRESETS,input.preset)) throw new Error(t('無法辨識設計設定'));
     return { preset: input.preset, a: sanitizeConfig(input.a), b: sanitizeConfig(input.b),
       reference: ['original','refined','editorial','navy','snapshot'].includes(input.reference) ? input.reference : 'snapshot',
       mode: ['single','side','wipe'].includes(input.mode) ? input.mode : 'single',
@@ -49,18 +51,18 @@
     if (saved) state = sanitizeState(JSON.parse(saved));
   } catch (error) {
     storageAvailable = false;
-    $('#saveStatus').textContent = '目前僅保留在此分頁';
+    $('#saveStatus').textContent = t('目前僅保留在此分頁');
   }
 
   function persist() {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); storageAvailable = true; $('#saveStatus').textContent = '已自動儲存於本機'; }
-      catch (error) { storageAvailable = false; $('#saveStatus').textContent = '請匯出設定以保留調整'; }
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); storageAvailable = true; $('#saveStatus').textContent = t('已自動儲存於本機'); }
+      catch (error) { storageAvailable = false; $('#saveStatus').textContent = t('請匯出設定以保留調整'); }
     }, 240);
   }
   function notify(message) {
-    clearTimeout(toastTimer); $('#toast').textContent = message; $('#toast').hidden = false;
+    clearTimeout(toastTimer); $('#toast').textContent = t(message); $('#toast').hidden = false;
     toastTimer = setTimeout(() => { $('#toast').hidden = true; }, 4200);
   }
   function rgb(hex) { return [1,3,5].map((index) => parseInt(hex.slice(index,index+2),16)); }
@@ -89,20 +91,21 @@
     const pass = body>=4.5 && title>=3 && emphasis>=3;
     const status=$('#contrastStatus');status.classList.toggle('warning',!pass);
     status.replaceChildren();
-    const strong=document.createElement('strong');strong.textContent=pass?'文字對比：背景端點檢查通過':'文字對比偏低，建議調整色彩';
-    const detail=document.createElement('span');detail.textContent=`內文 ${body.toFixed(1)}:1 · 主標 ${title.toFixed(1)}:1 · 強調 ${emphasis.toFixed(1)}:1`;
+    const strong=document.createElement('strong');strong.textContent=t(pass?'文字對比：背景端點檢查通過':'文字對比偏低，建議調整色彩');
+    const detail=document.createElement('span');detail.textContent=`${t('內文')} ${body.toFixed(1)}:1 · ${t('主標')} ${title.toFixed(1)}:1 · ${t('強調')} ${emphasis.toFixed(1)}:1`;
     status.append(strong,detail);
-    status.title='估算文字與漸層端點的對比；未涵蓋所有漸層中間色、點紋、按鈕和右側圖像區。內文建議至少 4.5:1，大標題至少 3:1。';
+    status.title=t('估算文字與漸層端點的對比；未涵蓋所有漸層中間色、點紋、按鈕和右側圖像區。內文建議至少 4.5:1，大標題至少 3:1。');
   }
   function isCustom() { return JSON.stringify(state.b)!==JSON.stringify(PRESETS[state.preset].config); }
   function updateLabels() {
     const preset=PRESETS[state.preset],custom=isCustom();
-    $('#currentName').textContent=preset.name;$('#versionName').textContent=preset.name+(custom?'・自訂':'');
-    $('#modifiedDot').hidden=!custom;$('#customBadge').textContent=custom?'已自訂':'範本設定';
-    $('#referenceName').textContent=state.reference==='snapshot'?'已固定的自訂版本':PRESETS[state.reference].name;
-    $('#directionTitle').textContent=preset.noteTitle;$('#directionDescription').textContent=preset.note;
+    $('#currentName').textContent=t(preset.name);$('#versionName').textContent=t(preset.name)+(custom?t('・自訂'):'');
+    $('#modifiedDot').hidden=!custom;$('#customBadge').textContent=t(custom?'已自訂':'範本設定');
+    $('#referenceName').textContent=t(state.reference==='snapshot'?'已固定的自訂版本':PRESETS[state.reference].name);
+    $('#directionTitle').textContent=t(preset.noteTitle);$('#directionDescription').textContent=t(preset.note);
     document.querySelectorAll('.preset').forEach((button)=>button.setAttribute('aria-pressed',String(button.dataset.preset===state.preset)));
     assessContrast();
+    localize();
   }
 
   Object.entries(PRESETS).forEach(([id,preset])=>{
@@ -160,7 +163,7 @@
   $('#frameB').addEventListener('load',()=>{ $('#frameB').contentWindow.postMessage({type:'impresive:settings',styles:variables(state.b)},'*'); });
   function updateWipe() {
     $('#stage').style.setProperty('--split',state.split+'%');$('#wipeControl').style.setProperty('--split',state.split+'%');
-    $('#wipeRange').setAttribute('aria-valuetext',`左側 A 版 ${state.split}%，右側 B 版 ${100-state.split}%`);
+    $('#wipeRange').setAttribute('aria-valuetext',window.StudioI18n?.language==='en' ? `A on the left ${state.split}%, B on the right ${100-state.split}%` : `左側 A 版 ${state.split}%，右側 B 版 ${100-state.split}%`);
   }
   $('#wipeRange').addEventListener('input',()=>{state.split=Number($('#wipeRange').value);updateWipe();persist();});
   function scaleFrames() {
@@ -177,8 +180,9 @@
     $('#wipeControl').hidden=state.mode!=='wipe';
     document.querySelectorAll('[data-mode]').forEach((button)=>{if(button.tagName==='BUTTON')button.setAttribute('aria-pressed',String(button.dataset.mode===state.mode));});
     document.querySelectorAll('[data-device]').forEach((button)=>{if(button.tagName==='BUTTON')button.setAttribute('aria-pressed',String(button.dataset.device===state.device));});
-    $('#previewHint').textContent=state.mode==='wipe'?'拖曳中線，或聚焦比較拉桿後按方向鍵。左側為 A 版，右側為目前調整的 B 版。':state.mode==='side'?'左右使用相同的畫面尺寸縮放，方便比較構圖、文字層次與色彩。':'右側預覽會跟著設定即時更新。切換「拉桿比較」，可與 A 版直接對照。';
+    $('#previewHint').textContent=t(state.mode==='wipe'?'拖曳中線，或聚焦比較拉桿後按方向鍵。左側為 A 版，右側為目前調整的 B 版。':state.mode==='side'?'左右使用相同的畫面尺寸縮放，方便比較構圖、文字層次與色彩。':'右側預覽會跟著設定即時更新。切換「拉桿比較」，可與 A 版直接對照。');
     requestAnimationFrame(scaleFrames);
+    localize();
   }
   document.querySelectorAll('button[data-mode]').forEach((button)=>button.addEventListener('click',()=>{state.mode=button.dataset.mode;syncView();persist();}));
   document.querySelectorAll('button[data-device]').forEach((button)=>button.addEventListener('click',()=>{state.device=button.dataset.device;syncView();persist();}));
@@ -212,16 +216,20 @@
   $('#importJson').addEventListener('click',()=>{$('#importFile').click();$('#exportMenu').open=false;});
   $('#importFile').addEventListener('change',async(event)=>{
     const file=event.target.files[0];if(!file)return;
-    try{if(file.size>65536)throw new Error('設定檔過大');const imported=JSON.parse(await file.text());if(imported.version!==1)throw new Error('不支援此設定版本');state=sanitizeState(imported);syncInputs();renderA();renderB();syncView();updateLabels();persist();notify('已載入 A/B 設定。');}
-    catch(error){notify('無法載入設定：'+error.message+'。請使用本工具匯出的 JSON。');}finally{event.target.value='';}
+    try{if(file.size>65536)throw new Error(t('設定檔過大'));const imported=JSON.parse(await file.text());if(imported.version!==1)throw new Error(t('不支援此設定版本'));state=sanitizeState(imported);syncInputs();renderA();renderB();syncView();updateLabels();persist();notify('已載入 A/B 設定。');}
+    catch(error){notify(t('無法載入設定：')+error.message+t('。請使用本工具匯出的 JSON。'));}finally{event.target.value='';}
   });
   document.addEventListener('click',(event)=>{if(!$('#exportMenu').contains(event.target))$('#exportMenu').open=false;});
   document.addEventListener('keydown',(event)=>{if(event.key==='Escape')$('#exportMenu').open=false;});
   new ResizeObserver(()=>requestAnimationFrame(scaleFrames)).observe($('#canvasArea'));
   window.addEventListener('pagehide',()=>{if(previewUrl)URL.revokeObjectURL(previewUrl);});
+  document.addEventListener('studio:languagechange',()=>{
+    updateLabels();updateWipe();syncView();
+  });
   const fontStyle=document.createElement('style');
   fontStyle.textContent='@font-face{font-family:StudioInter;src:url("'+window.HERO_ASSETS.font+'");font-weight:100 900;font-display:swap}';
   document.head.append(fontStyle);
   syncInputs();renderA();renderB();syncView();updateLabels();
+  localize();
   if(!storageAvailable)notify('此瀏覽器暫時無法自動保留設定，可使用「匯出設計」下載設定。');
 })();

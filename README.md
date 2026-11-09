@@ -2,6 +2,8 @@
 
 Open `IMPRESIVE-Hero-Lab.html` directly in a current browser. This is the self-contained single-file deliverable; its images, font, styles, and scripts are included. No installation or server is required.
 
+`index.html` and the single-file deliverable now include adjacent **中文 / English** buttons in the header. Switching languages updates the current page without navigation or reloading the previews. Colors, slider values, the pinned A design, comparison mode, and divider position are retained. Language preference is stored separately from design settings and restored on the next visit.
+
 `index.html` is the editable source entry point. Keep it together with the CSS and JavaScript files. After source edits, run `node build-standalone.cjs` to refresh the single-file deliverable and validate all four renderers and embedded asset bytes.
 
 ## Usage
@@ -22,6 +24,7 @@ The colour contrast indicator estimates headline and body contrast against gradi
 ## Files
 - `index.html`: tool entry point.
 - `studio.css`, `studio.js`: comparison UI and controls.
+- `studio-i18n.js`, `studio-i18n.css`: same-page language switching and translated-label layout.
 - `hero-preview.js`: four standalone hero compositions and live-update listener.
 - `assets.js`: embedded authentic image/font data.
 - Markdown files: design source, scope, and validation record.

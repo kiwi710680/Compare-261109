@@ -1,0 +1,21 @@
+.language-switch{display:flex;align-items:center;gap:2px;padding:3px;border:1px solid var(--line);border-radius:8px;background:var(--subtle);flex-shrink:0}
+.language-switch button{min-height:30px;padding:0 11px;border-radius:5px;font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap}
+.language-switch button:hover{background:#f7f9f5;color:var(--ink)}
+.language-switch button[aria-pressed=true]{background:var(--ink);color:#fff}
+html[lang=en] .preset-text{min-width:0}
+html[lang=en] .preset-title{flex-wrap:wrap;gap:4px 7px;line-height:1.4}
+html[lang=en] .preset-subtitle{line-height:1.5;overflow-wrap:break-word}
+html[lang=en] .section-title>span{flex-shrink:0}
+html[lang=en] .preview-toolbar,html[lang=en] .reference-bar{flex-wrap:wrap}
+html[lang=en] .controls-footer button{flex-shrink:0}
+html[lang=en] .export-options button{line-height:1.6}
+@media(max-width:1250px){.header-actions{gap:12px}.local-badge{display:none}}
+@media(max-width:800px){.header-actions{gap:10px}.language-switch button{min-height:26px;padding:0 8px;font-size:10px}}
+@media(max-width:480px){
+  .studio-header{gap:8px;padding-inline:12px}.studio-brand{gap:7px}.studio-brand>span>span:last-child{font-size:10px}.studio-mark{width:27px;height:27px}
+  .header-actions{gap:7px}.language-switch{padding:2px;border-radius:6px}.language-switch button{padding:0 7px;font-size:9px;min-height:27px}.button-dark{padding-inline:9px;font-size:9px;gap:3px}
+  html[lang=en] .preset{align-items:flex-start}
+  html[lang=en] .color-control>label{line-height:1.5;min-height:15px}
+  html[lang=en] .controls-footer{align-items:flex-start}
+  html[lang=en] .controls-footer p{max-width:23ch}
+}
